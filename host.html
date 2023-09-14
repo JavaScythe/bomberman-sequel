@@ -1,0 +1,74 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>bombermunkey</title>
+    <style>
+        body{
+            background-color: black;
+        }
+        *{color:white;font-family: Arial, Helvetica, sans-serif;}
+        canvas{border:1px solid red;}
+    </style>
+</head>
+<body>
+    <div class="config">
+        <label>player 1 </label><input checked type="checkbox" id="p1m"><br>
+        <label>player 2 </label><input checked type="checkbox" id="p2m"><br>
+        <label>player 3 </label><input checked type="checkbox" id="p3m"><br>
+        <label>player 4 </label><input type="checkbox" id="p4m"><br>
+        <label>player 5 </label><input type="checkbox" id="p5m"><br>
+        <label>player 6 </label><input type="checkbox" id="p6m"><br>
+        <label>player 7 </label><input type="checkbox" id="p7m"><br>
+        <label>player 8 </label><input type="checkbox" id="p8m"><br>
+        <label>map </label><select id="map">
+            <option>default</option>
+            <option>pipes</option>
+        </select><br>
+        <label>extra bomb </label><input checked type="checkbox" id="p_eb"><br>
+        <label>kick bomb </label><input checked type="checkbox" id="p_kb"><br>
+        <label>super bomb </label><input checked type="checkbox" id="p_sb"><br>
+        <label>nuke </label><input type="checkbox" id="p_nb"><br>
+        <label>poison_speed </label><input checked type="checkbox" id="p_ps"><br>
+        <label>speed modifier: </label><input id="gs" type="number" min="0.1" max="10" value="1"><br>
+        <button onclick="gameInit();">start match with X players</button>
+
+    </div>
+    <script>
+        let ws = new WebSocket("ws://"+location.host+"/");
+        ws.onopen = ()=>{
+            ws.send('{"reg":true}')
+        }
+        function v(x){
+            return document.getElementById(x).value;
+        }
+        function vc(x){
+            return document.getElementById(x).checked;
+        }
+        function gameInit(){
+            let conf = {
+                players: {
+                    "1": vc("p1m"),
+                    "2": vc("p2m"),
+                    "3": vc("p3m"),
+                    "4": vc("p4m"),
+                    "5": vc("p5m"),
+                    "6": vc("p6m"),
+                    "7": vc("p7m"),
+                    "8": vc("p8m"),
+                },
+                specials: {
+                    "extra_bomb": vc("p_eb"),
+                    "kick_bomb": vc("p_kb"),
+                    "super_bomb": vc("p_sb"),
+                    "nuke": vc("p_nb"),
+                    "poison_speed": vc("p_ps"),
+                },
+                speed: v("gs"),
+                map: v("map")
+            };
+            ws.send(JSON.stringify(conf));
+        }
+    </script>
+</body>
+</html>
