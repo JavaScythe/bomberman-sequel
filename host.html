@@ -39,31 +39,105 @@
     <canvas id="xrandr" height="336" width="384"></canvas>
     <script>
         let state = {
-            map: undefined
+            map: undefined,
+            things: undefined,
+            playerExacts: {
+        "p0": {
+            x: 0,
+            y: 0
+        },
+        "p1": {
+            x: 12,
+            y: 0
+        },
+        "p2": {
+            x: 0,
+            y: 10
+        },
+        "p3": {
+            x: 12,
+            y: 10
+        }
+    },
         };
         let ws = new WebSocket("ws://"+location.host+"/");
         ws.onopen = ()=>{
             ws.send('{"reg":true}')
         }
-        ws.onmessage = (x)=>{
-            console.log("got ", x.data);
+        ws.onmessage = (m)=>{
+            console.log("got ", m.data);
             try{
-                x = JSON.parse(x.data);
+                m = JSON.parse(m.data);
             } catch(e){
                 alert("packet failure");
                 throw e;
             }
-            if(x.type == "map"){
-                state.map = x.map;
+            if(m.type == "map"){
+                state.map = m.map;
                 document.getElementsByClassName("config")[0].parentElement.removeChild(document.getElementsByClassName("config")[0]);
+                randr();
+            } else if(m.type == "px"){
+                state.playerExacts[m.player].x = m.x;
+                state.playerExacts[m.player].y = m.y;
+                //update map with player
+                //find player in map and remove, then add to new location
+                for(let y in state.map){
+                    for(let x in state.map[y]){
+                        if(state.map[y][x] == m.player){
+                            state.map[y][x] = "";
+                        }
+                    }
+                }
+                let tx = Math.round(m.x);
+                let ty = Math.round(m.y);
+                state.map[ty][tx] = m.player;
                 randr();
             }
         }
+        document.body.addEventListener("keydown", function(k){
+            ws.send(JSON.stringify({
+                "type": "keyd",
+                "key": k.key
+            }));
+        });
+        document.body.addEventListener("keyup", function(k){
+            ws.send(JSON.stringify({
+                "type": "keyu",
+                "key": k.key
+            }));
+        });
         function randr(){
             let canvas = document.getElementById("xrandr");
             let ctx = canvas.getContext("2d");
-            ctx.fillStyle = "white";
-            ctx.fillText("wassup", 10, 10);
+            //clear canvas
+            ctx.fillStyle = "black";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            
+            let map = state.map;
+            let tx = ((canvas.width-20)/13);
+            let ty = ((canvas.height-20)/11);
+            let things = state.things;
+            for(let y in map){
+                for(let x in map[y]){
+                    if(map[y][x] == "X"){
+                        ctx.fillStyle = "white";
+                    } else if(map[y][x] == "") {
+                        ctx.fillStyle = "black";
+                    } else if(map[y][x][0] == "p"){
+                        ctx.fillStyle = "black";
+                    }
+                    ctx.fillRect(10+(tx*x), 10+(ty*y), tx, ty);
+                }
+            }
+            //render players
+            for(let p in state.playerExacts){
+                let x = state.playerExacts[p].x;
+                let y = state.playerExacts[p].y;
+                ctx.fillStyle = "red";
+                ctx.fillRect(10+(tx*x), 10+(ty*y), tx, ty);
+            }
+
         }
         function v(x){
             return document.getElementById(x).value;
