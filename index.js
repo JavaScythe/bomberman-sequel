@@ -103,8 +103,8 @@ function broadcast(m){
 function mapGen(x){
     const mapConst = ["", "X"];
     if(x == "default"){
-            const mapWidth = 15; 
-            const mapHeight = 13;
+            const mapWidth = 13; 
+            const mapHeight = 11;
 
             let map = [];
             for (let y = 0; y < mapHeight; y++) {
