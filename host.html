@@ -33,7 +33,7 @@
         <label>poison_speed </label><input checked type="checkbox" id="p_ps"><br>
         <label>speed modifier: </label><input id="gs" type="number" min="0.1" max="10" value="1"><br>
         <button onclick="gameInit();">start match with X players</button>
-        <button onclick="mapGen();">map gen</button>
+
 
     </div>
     <canvas id="xrandr" height="500" width="500"></canvas>
@@ -127,7 +127,7 @@
                     } else if(map[y][x][0] == "U"){
                         ctx.fillStyle = "black";
                     } else if(map[y][x][0] == "O"){
-                        ctx.fillStyle = "black";
+                        ctx.fillStyle = "green";
                     }
                     ctx.fillRect(10+(tx*x), 10+(ty*y), tx, ty);
                 }
@@ -170,69 +170,6 @@
                 map: v("map")
             };
             ws.send(JSON.stringify(conf));
-        }
-
-        function mapGen(){
-            const mapWidth = 15; 
-            const mapHeight = 13;
-
-            let map = [];
-            for (let y = 0; y < mapHeight; y++) {
-            let row = [];
-                for (let x = 0; x < mapWidth; x++) {
-                    row.push('#'); //populate math
-                }
-            map.push(row);
-            }
-
-                for (let y = 1; y < mapHeight - 1; y++) {
-                    for (let x = 1; x < mapWidth - 1; x++) {
-                        if (Math.random() < 0.55) { 
-                            if (Math.random() < 0.55 && isSafeToPlaceU(x, y)) {
-                                map[y][x] = 'U'; // about half are unbreakable
-                            }
-                            else {
-                                map[y][x] = ' '; // empty spaces
-                            } 
-                        }
-                    }
-                }
-
-            function isSafeToPlaceU(x, y) { //check if it's safe to place U
-                const neighbors = [
-                    map[y - 1][x],
-                    map[y + 1][x],
-                    map[y][x - 1],
-                    map[y][x + 1]
-                ];
-
-                return neighbors.indexOf('U') === -1;
-            }
-
-
-            const numOs = Math.floor(Math.random() * (mapHeight * mapWidth * 0.1)); // density of powerups
-                for (let i = 0; i < numOs; i++) {
-                    const x = Math.floor(Math.random() * (mapWidth - 2)) + 1;
-                    const y = Math.floor(Math.random() * (mapHeight - 2)) + 1;
-                    map[y][x] = 'O'; //powerup, both breakable and powerup
-                }
-
-            //ensure spawn pts are clear
-            map[0][0] = ' ';
-            map[1][0] = ' ';
-            map[0][1] = ' ';
-            map[0][mapWidth - 1] = ' ';
-            map[0][mapWidth - 2] = ' ';
-            map[mapHeight - 1][mapWidth - 1] = ' ';
-            map[mapHeight - 1][0] = ' ';
-            map[mapHeight - 2][0] = ' ';
-            map[mapHeight - 2][mapWidth - 1] = ' ';
-            map[mapHeight - 1][mapWidth - 1] = ' ';
-            map[mapHeight - 2][mapWidth - 2] = ' ';
-
-            const mapString = map.map(row => row.join('')).join('\n');
-            console.log(mapString);
-
         }
     </script>
 </body>

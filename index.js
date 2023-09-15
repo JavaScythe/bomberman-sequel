@@ -62,7 +62,11 @@ const server = Bun.serve({
                 state.conf = message;
                 state.isStarted = true;
                 console.log("LESGO");
+                if (state.conf.map) {
                 state.map = mapGen(state.conf.map);
+                } else {
+                    console.log(state.conf.map);
+                }
                 for(let i in state.wss){
                     state.wss[i].send(JSON.stringify({
                         type: "map",
@@ -80,11 +84,21 @@ const server = Bun.serve({
             
         }
     },
-    port: 3001
+    port: 3002
 });
 function think(k,p){
     if(k == "ArrowRight"){
         state.playerExacts[p].x+=0.1;
+        console.log("updated");
+        broadcast({
+            "type":"px",
+            "player": p,
+            "x": state.playerExacts[p].x,
+            "y": state.playerExacts[p].y
+        })
+    }
+    if(k == "ArrowLeft"){
+        state.playerExacts[p].x-=0.1;
         console.log("updated");
         broadcast({
             "type":"px",
@@ -122,7 +136,7 @@ function mapGen(x){
                                 map[y][x] = 'U'; // about half are unbreakable
                             }
                             else {
-                                map[y][x] = ' '; // empty spaces
+                                map[y][x] = ''; // empty spaces
                             } 
                         }
                     }
@@ -148,17 +162,17 @@ function mapGen(x){
                 }
 
             //ensure spawn pts are clear
-            map[0][0] = ' ';
-            map[1][0] = ' ';
-            map[0][1] = ' ';
-            map[0][mapWidth - 1] = ' ';
-            map[0][mapWidth - 2] = ' ';
-            map[mapHeight - 1][mapWidth - 1] = ' ';
-            map[mapHeight - 1][0] = ' ';
-            map[mapHeight - 2][0] = ' ';
-            map[mapHeight - 2][mapWidth - 1] = ' ';
-            map[mapHeight - 1][mapWidth - 1] = ' ';
-            map[mapHeight - 2][mapWidth - 2] = ' ';
+            map[0][0] = '';
+            map[1][0] = '';
+            map[0][1] = ''; // top left
+            map[0][mapWidth - 1] = '';
+            map[0][mapWidth - 2] = '';
+            map[mapHeight - 1][mapWidth - 1] = '';
+            map[mapHeight - 1][0] = '';
+            map[mapHeight - 2][0] = '';
+            map[mapHeight - 2][mapWidth - 1] = '';
+            map[mapHeight - 1][mapWidth - 1] = '';
+            map[mapHeight - 2][mapWidth - 1] = '';
 
             const mapString = map.map(row => row.join('')).join('\n');
             console.log(mapString);
