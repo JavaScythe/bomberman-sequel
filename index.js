@@ -172,7 +172,7 @@ function mapGen(x){
             map[mapHeight - 2][0] = '';
             map[mapHeight - 2][mapWidth - 1] = '';
             map[mapHeight - 1][mapWidth - 1] = '';
-            map[mapHeight - 2][mapWidth - 1] = '';
+            map[mapHeight - 1][mapWidth - 1] = '';
 
             const mapString = map.map(row => row.join('')).join('\n');
             console.log(mapString);
