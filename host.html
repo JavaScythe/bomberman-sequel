@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,7 +9,7 @@
             background-color: black;
         }
         *{color:white;font-family: Arial, Helvetica, sans-serif;}
-        canvas{border:1px solid red;}
+        canvas{border:1px solid gray;}
     </style>
 </head>
 <body>
@@ -35,10 +36,34 @@
         <button onclick="mapGen();">map gen</button>
 
     </div>
+    <canvas id="xrandr" height="336" width="384"></canvas>
     <script>
+        let state = {
+            map: undefined
+        };
         let ws = new WebSocket("ws://"+location.host+"/");
         ws.onopen = ()=>{
             ws.send('{"reg":true}')
+        }
+        ws.onmessage = (x)=>{
+            console.log("got ", x.data);
+            try{
+                x = JSON.parse(x.data);
+            } catch(e){
+                alert("packet failure");
+                throw e;
+            }
+            if(x.type == "map"){
+                state.map = x.map;
+                document.getElementsByClassName("config")[0].parentElement.removeChild(document.getElementsByClassName("config")[0]);
+                randr();
+            }
+        }
+        function randr(){
+            let canvas = document.getElementById("xrandr");
+            let ctx = canvas.getContext("2d");
+            ctx.fillStyle = "white";
+            ctx.fillText("wassup", 10, 10);
         }
         function v(x){
             return document.getElementById(x).value;
