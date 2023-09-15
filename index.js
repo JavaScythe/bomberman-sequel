@@ -103,17 +103,65 @@ function broadcast(m){
 function mapGen(x){
     const mapConst = ["", "X"];
     if(x == "default"){
-        let map = [];
-        for(let y=0;y<11;y++){
-            map.push([]);
-            for(let x=0;x<13;x++){
-                map[y].push(mapConst[Math.floor(Math.random()*mapConst.length)]);
+            const mapWidth = 15; 
+            const mapHeight = 13;
+
+            let map = [];
+            for (let y = 0; y < mapHeight; y++) {
+            let row = [];
+                for (let x = 0; x < mapWidth; x++) {
+                    row.push('#'); //populate math
+                }
+            map.push(row);
             }
-        }
-        map[0][0] = "p0";
-        map[0][12] = "p1";
-        map[10][0] = "p2";
-        map[10][12] = "p3";
+
+                for (let y = 1; y < mapHeight - 1; y++) {
+                    for (let x = 1; x < mapWidth - 1; x++) {
+                        if (Math.random() < 0.55) { 
+                            if (Math.random() < 0.55 && isSafeToPlaceU(x, y)) {
+                                map[y][x] = 'U'; // about half are unbreakable
+                            }
+                            else {
+                                map[y][x] = ' '; // empty spaces
+                            } 
+                        }
+                    }
+                }
+
+            function isSafeToPlaceU(x, y) { //check if it's safe to place U
+                const neighbors = [
+                    map[y - 1][x],
+                    map[y + 1][x],
+                    map[y][x - 1],
+                    map[y][x + 1]
+                ];
+
+                return neighbors.indexOf('U') === -1;
+            }
+
+
+            const numOs = Math.floor(Math.random() * (mapHeight * mapWidth * 0.1)); // density of powerups
+                for (let i = 0; i < numOs; i++) {
+                    const x = Math.floor(Math.random() * (mapWidth - 2)) + 1;
+                    const y = Math.floor(Math.random() * (mapHeight - 2)) + 1;
+                    map[y][x] = 'O'; //powerup, both breakable and powerup
+                }
+
+            //ensure spawn pts are clear
+            map[0][0] = ' ';
+            map[1][0] = ' ';
+            map[0][1] = ' ';
+            map[0][mapWidth - 1] = ' ';
+            map[0][mapWidth - 2] = ' ';
+            map[mapHeight - 1][mapWidth - 1] = ' ';
+            map[mapHeight - 1][0] = ' ';
+            map[mapHeight - 2][0] = ' ';
+            map[mapHeight - 2][mapWidth - 1] = ' ';
+            map[mapHeight - 1][mapWidth - 1] = ' ';
+            map[mapHeight - 2][mapWidth - 2] = ' ';
+
+            const mapString = map.map(row => row.join('')).join('\n');
+            console.log(mapString);
         return map;
     } else {
         throw "b0zo";

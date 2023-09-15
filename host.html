@@ -36,7 +36,7 @@
         <button onclick="mapGen();">map gen</button>
 
     </div>
-    <canvas id="xrandr" height="336" width="384"></canvas>
+    <canvas id="xrandr" height="500" width="500"></canvas>
     <script>
         let state = {
             map: undefined,
@@ -120,11 +120,13 @@
             let things = state.things;
             for(let y in map){
                 for(let x in map[y]){
-                    if(map[y][x] == "X"){
+                    if(map[y][x] == "#"){
                         ctx.fillStyle = "white";
                     } else if(map[y][x] == "") {
                         ctx.fillStyle = "black";
-                    } else if(map[y][x][0] == "p"){
+                    } else if(map[y][x][0] == "U"){
+                        ctx.fillStyle = "black";
+                    } else if(map[y][x][0] == "O"){
                         ctx.fillStyle = "black";
                     }
                     ctx.fillRect(10+(tx*x), 10+(ty*y), tx, ty);
