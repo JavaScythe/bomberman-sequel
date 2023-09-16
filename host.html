@@ -65,7 +65,6 @@
             ws.send('{"reg":true}')
         }
         ws.onmessage = (m)=>{
-            console.log("got ", m.data);
             try{
                 m = JSON.parse(m.data);
             } catch(e){
@@ -90,17 +89,22 @@
                 }
                 let tx = Math.round(m.x);
                 let ty = Math.round(m.y);
-                state.map[ty][tx] = m.player;
+                state.map[ty][tx] = "";
                 randr();
             }
         }
+        let pressedKeys = [];
         document.body.addEventListener("keydown", function(k){
+            if(pressedKeys.indexOf(k.key) == -1){
+                pressedKeys.push(k.key);
+            };
             ws.send(JSON.stringify({
                 "type": "keyd",
                 "key": k.key
             }));
         });
         document.body.addEventListener("keyup", function(k){
+            pressedKeys.splice(pressedKeys.indexOf(k.key), 1);
             ws.send(JSON.stringify({
                 "type": "keyu",
                 "key": k.key

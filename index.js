@@ -22,7 +22,12 @@ let state = {
             y: 10
         }
     },
-    playerKeyStates: []
+    playerKeyStates: {
+        "p0": [],
+        "p1": [],
+        "p2": [],
+        "p3": []
+    }
 }
 const server = Bun.serve({
     fetch(req, server) {
@@ -40,7 +45,6 @@ const server = Bun.serve({
     },
     websocket: {
         async message(ws, message) {
-            console.log("got ", message);
             try{
                 message = JSON.parse(message);
             } catch(e){
@@ -56,7 +60,9 @@ const server = Bun.serve({
                 state.wss.push(ws);
                 return;
             } else if (message.type == "keyu"){
-                think(message.key, ws.player);
+                think(message.key, ws.player, "u");
+            } else if(message.type == "keyd"){
+                think(message.key, ws.player, "d");
             }
             if(ws.owner == true && state.isStarted == false){
                 state.conf = message;
@@ -86,30 +92,56 @@ const server = Bun.serve({
     },
     port: 3002
 });
-function think(k,p){
-    if(k == "ArrowRight"){
-        state.playerExacts[p].x+=0.1;
-        console.log("updated");
-        broadcast({
-            "type":"px",
-            "player": p,
-            "x": state.playerExacts[p].x,
-            "y": state.playerExacts[p].y
-        })
-    }
-    if(k == "ArrowLeft"){
-        state.playerExacts[p].x-=0.1;
-        console.log("updated");
-        broadcast({
-            "type":"px",
-            "player": p,
-            "x": state.playerExacts[p].x,
-            "y": state.playerExacts[p].y
-        })
+function think(k,p,m){
+    if(m=="u"){
+        state.playerKeyStates[p].splice(state.playerKeyStates[p].indexOf(k),1);
+    } else if(m=="d"){
+        if(state.playerKeyStates[p].indexOf(k)==-1) state.playerKeyStates[p].push(k);
     }
 }
+setInterval(function(){
+    if(state.isStarted){
+        for(let i in state.playerKeyStates){
+            for(let k in state.playerKeyStates[i]){
+                if(state.playerKeyStates[i][k] == "ArrowLeft"){
+                    state.playerExacts[i].x=parseFloat((state.playerExacts[i].x-0.1).toFixed(1));
+                    broadcast({
+                        "type":"px",
+                        "player": i,
+                        "x": state.playerExacts[i].x,
+                        "y": state.playerExacts[i].y
+                    })
+                } else if(state.playerKeyStates[i][k] == "ArrowRight"){
+                    state.playerExacts[i].x=parseFloat((state.playerExacts[i].x+0.1).toFixed(1));
+                    broadcast({
+                        "type":"px",
+                        "player": i,
+                        "x": state.playerExacts[i].x,
+                        "y": state.playerExacts[i].y
+                    })
+                } else if(state.playerKeyStates[i][k] == "ArrowUp"){
+                    state.playerExacts[i].y=parseFloat((state.playerExacts[i].y-0.1).toFixed(1));
+                    broadcast({
+                        "type":"px",
+                        "player": i,
+                        "x": state.playerExacts[i].x,
+                        "y": state.playerExacts[i].y
+                    })
+                } else if(state.playerKeyStates[i][k] == "ArrowDown"){
+                    state.playerExacts[i].y=parseFloat((state.playerExacts[i].y+0.1).toFixed(1));
+                    broadcast({
+                        "type":"px",
+                        "player": i,
+                        "x": state.playerExacts[i].x,
+                        "y": state.playerExacts[i].y
+                    })
+                }
+            }
+        }
+    }
+}, 1000/20);
 function broadcast(m){
-    console.log(m);
+    //console.log(m);
     for(let i in state.wss){
         state.wss[i].send(JSON.stringify(m));
     }
