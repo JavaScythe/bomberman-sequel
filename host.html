@@ -120,7 +120,8 @@
             
             let map = state.map;
             let tx = ((canvas.width-20)/13);
-            let ty = ((canvas.height-20)/11);
+            console.log(tx);
+            let ty = tx;
             let things = state.things;
             for(let y in map){
                 for(let x in map[y]){

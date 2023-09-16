@@ -100,46 +100,40 @@ function think(k,p,m){
     }
 }
 setInterval(function(){
+    const mvspd = 0.4;
     if(state.isStarted){
         for(let i in state.playerKeyStates){
             for(let k in state.playerKeyStates[i]){
                 if(state.playerKeyStates[i][k] == "ArrowLeft"){
-                    state.playerExacts[i].x=parseFloat((state.playerExacts[i].x-0.1).toFixed(1));
-                    broadcast({
-                        "type":"px",
-                        "player": i,
-                        "x": state.playerExacts[i].x,
-                        "y": state.playerExacts[i].y
-                    })
+                    playerMove(i, -1*mvspd, 0);
                 } else if(state.playerKeyStates[i][k] == "ArrowRight"){
-                    state.playerExacts[i].x=parseFloat((state.playerExacts[i].x+0.1).toFixed(1));
-                    broadcast({
-                        "type":"px",
-                        "player": i,
-                        "x": state.playerExacts[i].x,
-                        "y": state.playerExacts[i].y
-                    })
+                    playerMove(i, mvspd, 0);
                 } else if(state.playerKeyStates[i][k] == "ArrowUp"){
-                    state.playerExacts[i].y=parseFloat((state.playerExacts[i].y-0.1).toFixed(1));
-                    broadcast({
-                        "type":"px",
-                        "player": i,
-                        "x": state.playerExacts[i].x,
-                        "y": state.playerExacts[i].y
-                    })
+                    playerMove(i, 0, -1*mvspd);
                 } else if(state.playerKeyStates[i][k] == "ArrowDown"){
-                    state.playerExacts[i].y=parseFloat((state.playerExacts[i].y+0.1).toFixed(1));
-                    broadcast({
-                        "type":"px",
-                        "player": i,
-                        "x": state.playerExacts[i].x,
-                        "y": state.playerExacts[i].y
-                    })
+                    playerMove(i, 0, mvspd);
                 }
             }
         }
     }
-}, 1000/20);
+}, 1000/10);
+function playerMove(p, x, y){
+    state.playerExacts[p].x += x;
+    state.playerExacts[p].y += y;
+
+    if(state.playerExacts[p].x < 0) state.playerExacts[p].x = 0;
+    if(state.playerExacts[p].y < 0) state.playerExacts[p].y = 0;
+    if(state.playerExacts[p].x > 12) state.playerExacts[p].x = 12;
+    if(state.playerExacts[p].y > 10) state.playerExacts[p].y = 10;
+
+
+    broadcast({
+        "type":"px",
+        "player": p,
+        "x": state.playerExacts[p].x,
+        "y": state.playerExacts[p].y
+    });
+}
 function broadcast(m){
     //console.log(m);
     for(let i in state.wss){
